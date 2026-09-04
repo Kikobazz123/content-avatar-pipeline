@@ -1,0 +1,12 @@
+{
+  "handle": "@lordmark.dorgu",
+  "name": "Lordmark Dorgu",
+  "tagline": "Building LordGen in public",
+  "bg": "#12141A",
+  "fg": "#FFFFFF",
+  "accent": "#22D3EE",
+  "muted": "#8B94A3",
+  "font_display": "C:/Windows/Fonts/ariblk.ttf",
+  "font_body": "C:/Windows/Fonts/arialbd.ttf",
+  "_note": "accent matches the cyan already used in his burned-in TikTok captions, so cards and video read as one identity"
+}

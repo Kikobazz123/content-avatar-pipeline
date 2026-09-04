@@ -1,0 +1,59 @@
+[
+  {
+    "index": 0,
+    "cue": "Nine tools",
+    "scene": "Stat",
+    "start_s": 1.01,
+    "duration_s": 2.5,
+    "match": 1.0,
+    "props": {
+      "value": 9,
+      "label": "TOOLS BUILT",
+      "durationInFrames": 75
+    },
+    "out": "beat00_stat"
+  },
+  {
+    "index": 1,
+    "cue": "exactly zero naira",
+    "scene": "Stat",
+    "start_s": 35.63,
+    "duration_s": 3.0,
+    "match": 1.0,
+    "props": {
+      "value": 0,
+      "label": "NAIRA EARNED",
+      "countUp": false,
+      "durationInFrames": 90
+    },
+    "out": "beat01_stat"
+  },
+  {
+    "index": 2,
+    "cue": "Africa is an oil well",
+    "scene": "Callout",
+    "start_s": 59.58,
+    "duration_s": 3.0,
+    "match": 1.0,
+    "props": {
+      "text": "BUILD WHERE NO ONE IS",
+      "sub": "capability, not competition",
+      "durationInFrames": 90
+    },
+    "out": "beat02_callout"
+  },
+  {
+    "index": 3,
+    "cue": "This is day one",
+    "scene": "Callout",
+    "start_s": 89.45,
+    "duration_s": 2.5,
+    "match": 1.0,
+    "props": {
+      "text": "DAY 1",
+      "sub": "wins and mistakes, all of it",
+      "durationInFrames": 75
+    },
+    "out": "beat03_callout"
+  }
+]

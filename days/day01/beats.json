@@ -1,0 +1,14 @@
+[
+  {"cue": "Nine tools", "scene": "Stat",
+   "props": {"value": 9, "label": "TOOLS BUILT"}},
+
+  {"cue": "exactly zero naira", "scene": "Stat", "hold": 3.0,
+   "props": {"value": 0, "label": "NAIRA EARNED", "countUp": false}},
+
+  {"cue": "Africa is an oil well", "scene": "Callout", "hold": 3.0,
+   "props": {"text": "BUILD WHERE NO ONE IS",
+             "sub": "capability, not competition"}},
+
+  {"cue": "This is day one", "scene": "Callout",
+   "props": {"text": "DAY 1", "sub": "wins and mistakes, all of it"}}
+]

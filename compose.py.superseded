@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Compose a vertical short in the split-screen format that outperforms in this
+niche: screen recording on top, talking head below, burned-in captions over both.
+
+The format matters more than the polish. Both 163k-view reference videos hold a
+screen recording in the upper ~55% for the entire runtime and never cut to a
+full-frame face — something is always *happening* while the presenter talks.
+It also means the talking-head pane is small, which is why an AI-avatar or
+lip-synced lower pane survives scrutiny that a full-frame one would not.
+
+Usage:
+    python compose.py --top screen.mp4 --bottom me.mp4 --captions captions.ass -o ep03.mp4
+    python compose.py --top screen.mp4 --bottom me.mp4 --audio vo.wav -o ep03.mp4
+    python compose.py --bottom me.mp4 -o talking_only.mp4        # no top pane
+"""
+from __future__ import annotations
+import argparse
+import os
+import subprocess
+import sys
+
+W, H = 1080, 1920
+
+
+def esc(path: str) -> str:
+    """Escape a path for use *inside* an ffmpeg filtergraph.
+
+    On Windows a bare path breaks the parser twice over: ffmpeg reads the
+    drive-letter colon as its option separator and eats backslashes as escapes.
+    Forward slashes plus a double-escaped colon is the form that actually
+    survives both passes (verified against ffmpeg 8.1.1 on this machine).
+    """
+    return path.replace("\\", "/").replace(":", "\\\\:")
+
+
+def pane(label: str, out: str, width: int, height: int) -> str:
+    """Scale-then-crop so a pane always fills its box without letterboxing."""
+    return (f"[{label}]scale={width}:{height}:force_original_aspect_ratio=increase,"
+            f"crop={width}:{height},setsar=1[{out}]")
+
+
+def main() -> None:
+    p = argparse.ArgumentParser(description="Split-screen vertical short compositor")
+    p.add_argument("--top", help="screen recording (upper pane)")
+    p.add_argument("--bottom", required=True, help="talking head (lower pane)")
+    p.add_argument("--top-start", type=float, default=0,
+                   help="skip this many seconds of the screen recording. Screen "
+                        "captures almost always open on an idle prompt, and dead "
+                        "air in frame zero wastes the only moment that decides "
+                        "whether anyone keeps watching.")
+    p.add_argument("--bottom-start", type=float, default=0,
+                   help="skip this many seconds of the talking-head clip")
+    p.add_argument("--captions", help=".ass file from captions.py")
+    p.add_argument("--audio", help="separate voiceover; defaults to --bottom's audio")
+    p.add_argument("-o", "--out", required=True)
+    p.add_argument("--split", type=float, default=0.55,
+                   help="fraction of height for the top pane (default 0.55)")
+    p.add_argument("--crf", type=int, default=19)
+    p.add_argument("--fps", type=int, default=30)
+    args = p.parse_args()
+
+    for f in (args.top, args.bottom, args.captions, args.audio):
+        if f and not os.path.exists(f):
+            sys.exit(f"not found: {f}")
+
+    # -ss before -i seeks on the input, which is both fast and keeps the two
+    # panes independently trimmable.
+    def src(path: str, start: float) -> list[str]:
+        return (["-ss", f"{start:.3f}"] if start else []) + ["-i", path]
+
+    inputs, filters = [], []
+    if args.top:
+        # Both pane heights must be even or libx264 rejects the frame size.
+        th = int(H * args.split) // 2 * 2
+        bh = H - th
+        inputs += src(args.top, args.top_start) + src(args.bottom, args.bottom_start)
+        filters += [pane("0:v", "t", W, th), pane("1:v", "b", W, bh),
+                    "[t][b]vstack=inputs=2[v]"]
+        audio_from = "1:a"
+    else:
+        inputs += src(args.bottom, args.bottom_start)
+        filters += [pane("0:v", "v0", W, H), "[v0]null[v]"]
+        audio_from = "0:a"
+
+    if args.audio:
+        # Count real inputs rather than argv length — an -ss prefix makes the
+        # per-input token count vary, so len(inputs) is not a reliable index.
+        n_inputs = sum(1 for tok in inputs if tok == "-i")
+        inputs += ["-i", args.audio]
+        audio_from = f"{n_inputs}:a"
+
+    if args.captions:
+        filters.append(f"[v]subtitles={esc(os.path.abspath(args.captions))}[v]")
+
+    cmd = ["ffmpeg", "-y", *inputs,
+           "-filter_complex", ";".join(filters),
+           "-map", "[v]", "-map", audio_from,
+           "-r", str(args.fps),
+           "-c:v", "libx264", "-crf", str(args.crf), "-preset", "medium",
+           "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "192k",
+           "-movflags", "+faststart",
+           "-shortest", args.out,
+           "-hide_banner", "-loglevel", "error"]
+
+    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    if r.returncode != 0:
+        tail = "\n".join((r.stderr or "").strip().splitlines()[-8:])
+        sys.exit(f"ffmpeg failed (exit {r.returncode}):\n{tail}")
+    size = os.path.getsize(args.out) / 1_000_000
+    print(f"{args.out}  ({W}x{H}, {size:.1f} MB)")
+
+
+if __name__ == "__main__":
+    main()

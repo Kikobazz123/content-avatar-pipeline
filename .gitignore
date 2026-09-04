@@ -1,0 +1,31 @@
+# Raw and rendered media — far too large for git (single files up to ~176 MB).
+# Source footage and renders live on disk, not in the repo.
+*.mp4
+*.MOV
+*.mov
+*.mp3
+*.wav
+*.m4a
+*.png
+*.jpg
+*.jpeg
+motion/remotion/out/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local Claude state
+.claude/settings.local.json
+
+# OS
+Thumbs.db
+.DS_Store
