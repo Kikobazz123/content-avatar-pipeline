@@ -40,7 +40,7 @@ py -3.10 trend_watch.py
 #    Frame yourself for a LOWER-THIRD pane, not a full-frame hero shot.
 
 # 2. Captions from the voiceover (word timings come from the audio itself)
-set SKILL=%USERPROFILE%\.claude\skillsvatar-video-engine\scripts
+set SKILL=%USERPROFILE%\.claude\skills\avatar-video-engine\scripts
 py -3.10 "%SKILL%\captions.py" me.mov -o captions.ass --model small --cache transcript.json
 
 #    Pass the script so the wording on screen is yours, not the ASR's. Alignment
