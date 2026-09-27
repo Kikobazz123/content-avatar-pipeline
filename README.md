@@ -1,13 +1,34 @@
 # Short-form production pipeline
 
-Turns a script + two recordings into a finished vertical short in the format that
-outperforms in this niche. Everything here runs locally on this machine.
+Turns a script and two recordings (screen + talking head) into a finished vertical
+short with burned-in, word-synced captions, then stages per-platform posts for
+review. Built for a solo creator publishing daily without an editor or a budget.
 
-**The scripts now live in the `avatar-video-engine` skill**
-(`~/.claude/skills/avatar-video-engine/scripts/`), not in this folder, so one copy
-is shared across projects and fixes land everywhere at once. The old local copies
-are kept as `*.py.superseded` and can be deleted. `make.bat` already points at the
-skill; only the paths below changed.
+Built by **[Lordmark Dorgu](https://github.com/Kikobazz123)** · MIT licensed ·
+runs locally on Windows, no paid APIs.
+
+<!-- TODO: add screenshot (a frame of a finished short) -->
+
+**Stack:** Python 3.10 · ffmpeg · faster-whisper (word timestamps) · ASS subtitles ·
+yt-dlp · Hacker News Algolia API · Pillow · Remotion 4 + React (motion graphics) ·
+Windows batch
+
+```
+trend_watch.py        pick today's topic: outlier videos in the niche + fresh HN stories
+write_script.py       build a writing brief from taste.md and fixed beats (no LLM call)
+series.json           the 30-episode plan used when nothing trends
+taste.md              the voice spec every script is written against
+make.bat              captions + compose for one day, via the avatar-video-engine skill
+motion/remotion/      motion-graphic inserts (callouts, stat reveals, terminal)
+repurpose/            one episode -> a reviewed draft per platform, quote cards, a posting checklist
+days/dayNN/           per-episode script, beats, transcript and captions
+```
+
+**Not self-contained:** the caption and compose scripts live in the
+`avatar-video-engine` Claude Code skill (`~/.claude/skills/avatar-video-engine/scripts/`),
+so one copy is shared across projects and fixes land everywhere at once. They are
+not in this repository; `make.bat` and the commands below call them from there.
+Python packages this repo imports directly are in `requirements.txt`.
 
 ## The format
 
@@ -110,9 +131,18 @@ path breaks the filtergraph twice (drive-letter colon read as an option separato
 backslashes eaten as escapes). This is the same class of bug that silently disables
 `--adaptive` in crv on this platform.
 
-## Not yet wired: publishing
+## Publishing: staged, never automatic
 
-Production is automated; publishing is deliberately not. See the parent notes —
-full auto-posting needs platform API approval that takes days to weeks, and at one
-post per day a manual upload costs about two minutes with zero account risk.
-Revisit when volume actually justifies it.
+`repurpose/post_generator.py` turns one episode into a drafts folder per platform
+(TikTok, Reels, Shorts, Instagram, X, LinkedIn, Facebook), each with a brief the
+post is written from; `visuals.py` renders quote cards with Pillow. Nothing there
+publishes.
+
+`repurpose/publish.py` has one interface and three backends. The default,
+`checklist`, writes `TO_POST.md` with every post in order and its file paths, for a
+two-minute manual upload with no API keys and no account risk. The `blotato` and
+`postiz` backends refuse to run without their API key and `--confirm`, and their
+HTTP calls are deliberately unimplemented until there is an account to test
+against: a half-written publisher that posts to the wrong account is worse than
+none. Full auto-posting also needs platform API approval that takes days to weeks,
+which one post a day does not justify yet.
