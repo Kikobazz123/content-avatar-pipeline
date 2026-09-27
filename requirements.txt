@@ -1,0 +1,4 @@
+# Python dependencies imported by this repo's own scripts.
+# yt-dlp and ffmpeg are invoked as CLIs and must also be on PATH.
+Pillow
+yt-dlp
