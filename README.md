@@ -7,7 +7,7 @@ review. Built for a solo creator publishing daily without an editor or a budget.
 Built by **[Lordmark Dorgu](https://github.com/Kikobazz123)** · MIT licensed ·
 runs locally on Windows, no paid APIs.
 
-<!-- TODO: add screenshot (a frame of a finished short) -->
+![Stills rendered from the repo's Remotion compositions: the Terminal insert and the Stat overlay](docs/motion-stills.png)
 
 **Stack:** Python 3.10 · ffmpeg · faster-whisper (word timestamps) · ASS subtitles ·
 yt-dlp · Hacker News Algolia API · Pillow · Remotion 4 + React (motion graphics) ·
